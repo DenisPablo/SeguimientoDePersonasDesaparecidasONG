@@ -1,0 +1,80 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Django stuff:
+*.log
+db.sqlite3
+media/
+staticfiles/
+
+# VS Code
+.vscode/
+
+# Environments
+.env
+.venv
+venv/
+ENV/
+env/
+
+# IDEs
+.idea/
+*.sublime-workspace
+*.sublime-project
+
+# MacOS
+.DS_Store
+
+# Linux
+*~
+
+# Test/migration artifacts
+*.pot
+*.pyc
+*.pyo
+
+# Draw.io autosave
+*.drawio.bkp
+
+# Jupyter Notebooks
+.ipynb_checkpoints/
+
+# Coverage reports
+htmlcov/
+.coverage
+.tox/
+
+# Pip
+pip-log.txt
+pip-delete-this-directory.txt
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+
+# Pytest
+.cache/
+
+# Local settings
+local_settings.py
+
+# Build
+build/
+dist/
+*.egg-info/
+
+# Node
+node_modules/
+
+# Documentación generada
+_documentacion/
+
+# Otros
+*.bak
+*.swp
+*.tmp
