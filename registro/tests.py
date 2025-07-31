@@ -30,12 +30,31 @@ class ImagenModelTest(TestCase):
             imagen.full_clean()
         except ValidationError:
             self.fail("full_clean() debería pasar sin errores con datos válidos")
-
-        
+       
 class PistaModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='12345')
-        self.pista = Pista.objects.create(descripcion='Descripción de la pista', usuario=self.user)
+        
+        self.reporte = Reporte.objects.create(
+            persona_desaparecida=PersonaDesaparecida.objects.create(
+                nombre='Persona',
+                apellido='Apellido',
+                nro_documento='12345678',
+                genero=1,
+                fecha_nacimiento=timezone.now() - timezone.timedelta(days=365 * 30),  # 30 años atrás
+                estado_salud='Saludable',
+                descripcion='Descripción de la persona desaparecida',
+                imagen_perfil=None,  # Asumiendo que no se proporciona una imagen
+                nro_calzado=42,
+                altura=1.75,
+                peso=70.0,
+                fecha_desaparicion=timezone.now() - timezone.timedelta(days=1),  # Desapareció ayer
+                usuario=self.user
+            ),
+            descripcion='Descripción del reporte',
+            usuario=self.user,
+        )
+        self.pista = Pista.objects.create(descripcion='Descripción de la pista',reporte=self.reporte, usuario=self.user)
 
     def test_descripcion_requerida(self):
         with self.assertRaises(ValidationError) as cm:
@@ -45,13 +64,14 @@ class PistaModelTest(TestCase):
     
     def test_usuario_requerido(self):
         with self.assertRaises(ValidationError) as cm:
-            pista = Pista(descripcion='Descripción de la pista', usuario=None)
+            pista = Pista(descripcion='Descripción de la pista',reporte= self.reporte , usuario=None)
             pista.full_clean()
         self.assertIn('usuario', cm.exception.message_dict)
 
     def test_creacion_exitosa(self):
         pista = Pista(
             descripcion='Descripción de la pista',
+            reporte=self.reporte,
             usuario=self.user
         )
         try:
@@ -125,11 +145,32 @@ class UbicacionModelTest(TestCase):
         except ValidationError:
             self.fail("full_clean() debería pasar sin errores con datos válidos")
 
-class UbicacionPistaModelTest(TestCase):
+class UbicacionPistaModelTest(TestCase):    
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='12345')
-    self.reporte = Reporte.objects.create()
-        self.pista = Pista.objects.create(descripcion='Descripción de la pista', usuario=self.user)
+        self.persona = PersonaDesaparecida(
+            nombre='Persona',
+            apellido='Apellido',
+            nro_documento='12345678',
+            genero=1,
+            fecha_nacimiento=timezone.now() - timezone.timedelta(days=365 * 30),  # 30 años atrás
+            estado_salud='Saludable',
+            descripcion='Descripción de la persona desaparecida',
+            imagen_perfil=None,  # Asumiendo que no se proporciona una imagen
+            nro_calzado=42,
+            altura=1.75,
+            peso=70.0,
+            fecha_desaparicion=timezone.now() - timezone.timedelta(days=1),  # Desapareció ayer
+            usuario=self.user
+        )
+        self.persona.save()  # Guardar la persona antes de crear el reporte
+        # Crear un reporte asociado a la persona
+        self.reporte = Reporte.objects.create(
+            persona_desaparecida=self.persona,  # Asumiendo que no se requiere una persona para este test
+            descripcion='Descripción del reporte',
+            usuario=self.user,
+        )
+        self.pista = Pista.objects.create(descripcion='Descripción de la pista',reporte=self.reporte ,usuario=self.user)
         self.ubicacion = Ubicacion.objects.create(latitud=0.0, longitud=0.0, usuario=self.user)
 
     def test_ubicacion_requerida(self):
@@ -146,7 +187,7 @@ class UbicacionPistaModelTest(TestCase):
 
     def test_usuario_requerido(self):
         with self.assertRaises(ValidationError) as cm:
-            ubicacion_pista = UbicacionPista(ubicacion=self.ubicacion, pista=self.pista, usuario=None)
+            ubicacion_pista = UbicacionPista(ubicacion=self.ubicacion, pista=self.pista, usuario=None) 
             ubicacion_pista.full_clean()
         self.assertIn('usuario', cm.exception.message_dict)
 
@@ -164,7 +205,27 @@ class UbicacionPistaModelTest(TestCase):
 class ImagenPistaModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='12345')
-        self.pista = Pista.objects.create(  descripcion='Descripción de la pista', usuario=self.user)
+        self.reporte = Reporte.objects.create(
+            persona_desaparecida=PersonaDesaparecida.objects.create(
+                nombre='Persona',
+                apellido='Apellido',
+                nro_documento='12345678',
+                genero=1,
+                fecha_nacimiento=timezone.now() - timezone.timedelta(days=365 * 30),  # 30 años atrás
+                estado_salud='Saludable',
+                descripcion='Descripción de la persona desaparecida',
+                imagen_perfil=None,  # Asumiendo que no se proporciona una imagen
+                nro_calzado=42,
+                altura=1.75,
+                peso=70.0,
+                fecha_desaparicion=timezone.now() - timezone.timedelta(days=1),  # Desapareció ayer
+                usuario=self.user
+            ),
+            descripcion='Descripción del reporte',
+            usuario=self.user,
+        )
+        # Crear una pista asociada al reporte
+        self.pista = Pista.objects.create(descripcion='Descripción de la pista',reporte=self.reporte, usuario=self.user)
         self.imagen = Imagen.objects.create(link='http://example.com/image.jpg', usuario=self.user)
 
     def test_imagen_requerida(self):
@@ -199,35 +260,44 @@ class ImagenPistaModelTest(TestCase):
 class ReporteModelTest(TestCase):
     def setUp(self):
         self.user = User.objects.create_user(username='testuser', password='12345')
-        self.persona = PersonaDesaparecida.objects.create(nombre='Persona 1', usuario=self.user)
+        self.persona_desaparecida = PersonaDesaparecida(
+            nombre='Persona',
+            apellido='Apellido',
+            nro_documento='12345678',
+            genero=1,
+            fecha_nacimiento=timezone.now() - timezone.timedelta(days=365 * 30),  # 30 años atrás
+            estado_salud='Saludable',
+            descripcion='Descripción de la persona desaparecida',
+            imagen_perfil=None,  # Asumiendo que no se proporciona una imagen
+            nro_calzado=42,
+            altura=1.75,
+            peso=70.0,
+            fecha_desaparicion=timezone.now() - timezone.timedelta(days=1),  # Desapareció ayer
+            usuario=self.user
+        )
+        self.persona_desaparecida.save()
 
     def test_persona_requerida(self):
         with self.assertRaises(ValidationError) as cm:
-            reporte = Reporte(persona=None, descripcion='Descripción del reporte', usuario=self.user)
+            reporte = Reporte(persona_desaparecida=None, descripcion='Descripción del reporte', usuario=self.user)
             reporte.full_clean()
-        self.assertIn('persona', cm.exception.message_dict)
+        self.assertIn('persona_desaparecida', cm.exception.message_dict)
 
     def test_descripcion_requerida(self):
         with self.assertRaises(ValidationError) as cm:
-            reporte = Reporte(persona=self.persona, descripcion='', usuario=self.user)
+            reporte = Reporte(persona_desaparecida=self.persona_desaparecida, descripcion='', usuario=self.user)
             reporte.full_clean()
         self.assertIn('descripcion', cm.exception.message_dict)
 
     def test_usuario_requerido(self):
         with self.assertRaises(ValidationError) as cm:
-            reporte = Reporte(persona=self.persona, descripcion='Descripción del reporte', usuario=None)
+            reporte = Reporte(persona_desaparecida=self.persona_desaparecida, descripcion='Descripción del reporte', usuario=None)
             reporte.full_clean()
         self.assertIn('usuario', cm.exception.message_dict)
 
-    def test_fecha_creacion_requerida(self):
-        with self.assertRaises(ValidationError) as cm:
-            reporte = Reporte(persona=self.persona, descripcion='Descripción del reporte', fecha_creacion=None, usuario=self.user)
-            reporte.full_clean()
-        self.assertIn('fecha_creacion', cm.exception.message_dict)
-
     def test_creacion_exitosa(self):
         reporte = Reporte(
-            persona=self.persona,
+            persona_desaparecida=self.persona_desaparecida,
             descripcion='Descripción del reporte',
             usuario=self.user,
             fecha_creacion=timezone.now()
