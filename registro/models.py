@@ -71,7 +71,7 @@ class UbicacionPista(models.Model):
     '''
     ubicacion = models.ForeignKey('Ubicacion', on_delete=models.CASCADE, related_name='ubicaciones_pista')
     # Relaciona la ubicacion con una pista
-    pista = models.ForeignKey('Pista', on_delete=models.CASCADE, related_name='ubicaciones')
+    pista = models.ForeignKey('Pista', on_delete=models.CASCADE, related_name='ubicaciones_pista')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ubicaciones_pista')
     # Relaciona la ubicacion con un usuario
     estado = models.BooleanField(default=True)
@@ -95,7 +95,7 @@ class ImagenPista(models.Model):
     '''
     imagen = models.ForeignKey('Imagen', on_delete=models.CASCADE, related_name='imagenes_pista')
     # Relaciona la imagen con una pista
-    pista = models.ForeignKey('Pista', on_delete=models.CASCADE, related_name='imagenes')
+    pista = models.ForeignKey('Pista', on_delete=models.CASCADE, related_name='imagenes_pista')
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='imagenes_pista')
     # Relaciona la imagen con un usuario
     estado = models.BooleanField(default=True)
