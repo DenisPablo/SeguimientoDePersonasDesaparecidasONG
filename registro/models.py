@@ -2,8 +2,54 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.utils import timezone
-
+from django.core.validators import RegexValidator
+import unicodedata
+import re
 # Create your models here.
+
+class Usuario(models.Model):
+    dni_validator = RegexValidator(r'^\d{7,11}$', 'El DNI debe tener entre 7 y 11 dígitos numéricos')
+    telefono_validator = RegexValidator(r'^\+?\d{7,15}$', 'Número de teléfono inválido')
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='usuario')
+    dni = models.CharField(max_length=11, unique=True, validators=[dni_validator])
+    telefono = models.CharField(max_length=15,unique=True, null=True, blank=True, validators=[telefono_validator])
+
+    fecha_creacion = models.DateTimeField(auto_now_add=True) 
+    ultima_actualizacion = models.DateTimeField(auto_now=True)     
+
+    class Meta:
+        verbose_name = "Usuario"
+        verbose_name_plural = "Usuarios"  
+
+    @staticmethod
+    def normalizar_nombre(nombre):
+        if not nombre:
+            return ''
+        # Quitar espacios al inicio y fin, pasar a minúsculas
+        nombre = nombre.strip().lower()
+        # Normalizar unicode (NFD separa acentos)
+        nombre = unicodedata.normalize('NFD', nombre)
+        # Quitar acentos excepto la ñ
+        nombre = ''.join(c for c in nombre if unicodedata.category(c) != 'Mn' or c == 'ñ')
+        # Quitar puntuación (solo letras y ñ)
+        nombre = re.sub(r'[^a-zñ\s]', '', nombre)
+        return nombre
+
+    def save(self, *args, **kwargs):
+        if self.user.first_name:
+            self.user.first_name = self.normalizar_nombre(self.user.first_name)
+        if self.user.last_name:
+            self.user.last_name = self.normalizar_nombre(self.user.last_name)
+        
+        self.user.save()
+        super().save(*args, **kwargs)
+
+
+    def __str__(self):
+        return f"{self.user.username} - {self.dni}"
+    
+
 class Imagen(models.Model):
     '''
     Modelo para guardar imágenes de personas y pruebas.
