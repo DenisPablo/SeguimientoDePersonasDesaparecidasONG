@@ -40,17 +40,18 @@ class UsuarioService:
             password=usuario_obj.user.password,
             email=usuario_obj.user.email,
 
-            is_active=usuario_obj.user.is_active,
+            is_active= usuario_obj.user.is_active,
         )
         
         usuario = Usuario.objects.create(
             user=user,
             dni = usuario_obj.dni,
             telefono = usuario_obj.telefono,
+            estado = usuario_obj.user.is_active,
         ) 
       
         return usuario
-
+    
     @staticmethod
     def desactivar_usuario(usuario_id):
         usuario = get_object_or_404(Usuario, id=usuario_id)

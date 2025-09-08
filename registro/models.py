@@ -8,6 +8,17 @@ import re
 # Create your models here.
 
 class Usuario(models.Model):
+    fecha_modificacion = models.DateTimeField(auto_now=True)
+    """
+    Modelo que representa el perfil extendido de un usuario en el sistema.
+    
+    Atributos:
+        user (User): Relación uno a uno con el usuario base de Django.
+        dni (str): Documento Nacional de Identidad, único, entre 7 y 11 dígitos.
+        telefono (str): Número de teléfono, único, entre 7 y 15 dígitos, puede ser nulo.
+        fecha_creacion (datetime): Fecha de creación del registro de usuario.
+        ultima_actualizacion (datetime): Fecha de la última actualización del registro.
+    """
     dni_validator = RegexValidator(r'^\d{7,11}$', 'El DNI debe tener entre 7 y 11 dígitos numéricos')
     telefono_validator = RegexValidator(r'^\+?\d{7,15}$', 'Número de teléfono inválido')
 
@@ -51,19 +62,19 @@ class Usuario(models.Model):
     
 
 class Imagen(models.Model):
+    fecha_modificacion = models.DateTimeField(auto_now=True)
     '''
     Modelo para guardar imágenes de personas y pruebas.
     Campos:
-    - link: URL de la imagen
+    - url: URL de la imagen
     - usuario: Usuario relacionado
     - estado: Borrado lógico
     '''
 
-    link = models.URLField(max_length=200, null=False, blank=False)
+    imagen = models.ImageField(upload_to='imagenes/', null=False, blank=False)
     usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='imagenes')
-    # Relaciona la imagen con un usuario
+    descripcion = models.TextField(null=True, blank=True)
     estado = models.BooleanField(default=True)
-    # True = activo, False = borrado lógico
 
     class Meta:
         verbose_name = "Imagen"
@@ -73,6 +84,7 @@ class Imagen(models.Model):
         return f"Imagen {self.id} - Usuario: {self.usuario.username}"
 
 class Ubicacion(models.Model):
+    fecha_modificacion = models.DateTimeField(auto_now=True)
     '''
     Modelo para guardar ubicaciones de personas y pruebas.
     Campos:
@@ -107,6 +119,7 @@ class Ubicacion(models.Model):
             raise ValidationError({'descripcion': 'La descripción no puede estar vacía si se proporciona.'})
 
 class UbicacionPista(models.Model):
+    fecha_modificacion = models.DateTimeField(auto_now=True)
     '''
     Modelo para guardar ubicaciones de pistas de personas y pruebas.
     Campos:
@@ -131,6 +144,7 @@ class UbicacionPista(models.Model):
         return f"UbicaciónPista {self.id} - Pista: {self.pista.id} - Usuario: {self.usuario.username}"
 
 class ImagenPista(models.Model):
+    fecha_modificacion = models.DateTimeField(auto_now=True)
     '''
     Modelo para guardar imágenes de pistas de personas y pruebas.
     Campos:
@@ -155,6 +169,7 @@ class ImagenPista(models.Model):
         return f"ImagenPista {self.id} - Pista: {self.pista.id} - Usuario: {self.usuario.username}"
     
 class Pista(models.Model):
+    fecha_modificacion = models.DateTimeField(auto_now=True)
     '''
     Modelo para guardar pistas de personas y pruebas.
     Campos:
@@ -169,7 +184,7 @@ class Pista(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     reporte = models.ForeignKey('Reporte', on_delete=models.CASCADE, related_name='pistas')
     # Relaciona la pista con un reporte
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='pistas')
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='pistas')
     # Relaciona la pista con un usuario
     estado = models.BooleanField(default=True)
     # True = activo, False = borrado lógico
@@ -182,6 +197,7 @@ class Pista(models.Model):
         return f"Pista {self.id} - Reporte: {self.reporte.id} - Usuario: {self.usuario.username}"
 
 class PersonaDesaparecida(models.Model):
+    fecha_modificacion = models.DateTimeField(auto_now=True)
     '''
     Modelo para guardar personas desaparecidas y pruebas.
     Campos:
@@ -270,6 +286,7 @@ class PersonaDesaparecida(models.Model):
         return dict(self.GENERO_CHOICES).get(self.genero, '')
 
 class Reporte(models.Model):
+    fecha_modificacion = models.DateTimeField(auto_now=True)
     '''
     Modelo para guardar reportes de personas y pruebas.
     Campos:
