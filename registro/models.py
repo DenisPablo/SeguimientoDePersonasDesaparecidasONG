@@ -8,7 +8,6 @@ import re
 # Create your models here.
 
 class Usuario(models.Model):
-    fecha_modificacion = models.DateTimeField(auto_now=True)
     """
     Modelo que representa el perfil extendido de un usuario en el sistema.
     
@@ -72,7 +71,7 @@ class Imagen(models.Model):
     '''
 
     imagen = models.ImageField(upload_to='imagenes/', null=False, blank=False)
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='imagenes')
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='imagenes')
     descripcion = models.TextField(null=True, blank=True)
     estado = models.BooleanField(default=True)
 
@@ -98,7 +97,7 @@ class Ubicacion(models.Model):
     latitud = models.FloatField(null=False, blank=False)
     longitud = models.FloatField(null=False, blank=False)
     descripcion = models.TextField(null=True, blank=True)
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ubicaciones')
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='ubicaciones')
     # Relaciona la ubicacion con un usuario
     estado = models.BooleanField(default=True)
     # True = activo, False = borrado lógico
@@ -131,7 +130,7 @@ class UbicacionPista(models.Model):
     ubicacion = models.ForeignKey('Ubicacion', on_delete=models.CASCADE, related_name='ubicaciones_pista')
     # Relaciona la ubicacion con una pista
     pista = models.ForeignKey('Pista', on_delete=models.CASCADE, related_name='ubicaciones_pista')
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='ubicaciones_pista')
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='ubicaciones_pista')
     # Relaciona la ubicacion con un usuario
     estado = models.BooleanField(default=True)
     # True = activo, False = borrado lógico
@@ -156,7 +155,7 @@ class ImagenPista(models.Model):
     imagen = models.ForeignKey('Imagen', on_delete=models.CASCADE, related_name='imagenes_pista')
     # Relaciona la imagen con una pista
     pista = models.ForeignKey('Pista', on_delete=models.CASCADE, related_name='imagenes_pista')
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='imagenes_pista')
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='imagenes_pista')
     # Relaciona la imagen con un usuario
     estado = models.BooleanField(default=True)
     # True = activo, False = borrado lógico
@@ -233,7 +232,7 @@ class PersonaDesaparecida(models.Model):
     altura = models.FloatField(null=False, blank=False)
     peso = models.FloatField(null=False, blank=False)
     fecha_desaparicion = models.DateTimeField(null=False, blank=False)
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='personas_desaparecidas')
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='personas_desaparecidas')
     estado = models.BooleanField(default=True)
     # True = activo, False = borrado lógico
 
@@ -293,7 +292,7 @@ class Reporte(models.Model):
     - descripcion: Descripción del reporte
     - fecha_creacion: Fecha de creación
     - fecha_modificacion: Fecha de modificación
-    - persona_desaparecida: Persona desaparecida relacionada
+    - persona_desaparecida: Persona desaparecida relacionada 
     - usuario: Usuario relacionado
     - estado: Borrado lógico
     '''
@@ -302,7 +301,7 @@ class Reporte(models.Model):
     fecha_creacion = models.DateTimeField(auto_now_add=True)
     fecha_modificacion = models.DateTimeField(auto_now=True)
     persona_desaparecida = models.ForeignKey(PersonaDesaparecida, on_delete=models.CASCADE, related_name='reportes')
-    usuario = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reportes')
+    usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='reportes')
     # Relaciona el reporte con un usuario
     estado = models.BooleanField(default=True)
     # True = activo, False = borrado lógico
