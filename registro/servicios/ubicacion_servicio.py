@@ -1,11 +1,16 @@
-from ..models import Ubicacion
+from ..models import Ubicacion, Usuario
+from django.shortcuts import get_object_or_404
 
 class UbicacionServicio:
     def crear_ubicacion(ubicacion_obj):
+
+        get_object_or_404(Usuario, id=ubicacion_obj.usuario.id)
+
         ubicacion = Ubicacion.objects.create(
             descripcion=ubicacion_obj.descripcion,
             latitud=ubicacion_obj.latitud,
             longitud=ubicacion_obj.longitud,
+            usuario=ubicacion_obj.usuario,
             estado=ubicacion_obj.estado,
         )
 

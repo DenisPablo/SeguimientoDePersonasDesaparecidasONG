@@ -186,7 +186,6 @@ class Pista(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='pistas')
     # Relaciona la pista con un usuario
     estado = models.BooleanField(default=True)
-    # True = activo, False = borrado lógico
 
     class Meta:
         verbose_name = "Pista"
@@ -304,7 +303,6 @@ class Reporte(models.Model):
     usuario = models.ForeignKey('Usuario', on_delete=models.CASCADE, related_name='reportes')
     # Relaciona el reporte con un usuario
     estado = models.BooleanField(default=True)
-    # True = activo, False = borrado lógico
 
     class Meta:
         verbose_name = "Reporte"

@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404
 from ..models import Imagen,Usuario
 
-class ImagenServicios:
+class ImagenServicio:
     
     @staticmethod
     def crear_imagen(imagen_obj):
@@ -17,7 +17,7 @@ class ImagenServicios:
 
         return imagen
     @staticmethod
-    def obtener_imagen_id(imagen_id):
+    def obtener_imagen_por_id(imagen_id):
         imagen = get_object_or_404(Imagen, id=imagen_id)
         
         return imagen

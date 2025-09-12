@@ -2,15 +2,19 @@ from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.utils import timezone
 from ..models import PersonaDesaparecida, User, Usuario, Imagen, Ubicacion, UbicacionPista, Pista, Reporte, ImagenPista
-from django.shortcuts import get_object_or_404s
+from django.shortcuts import get_object_or_404
 # Create your tests here.
 
 
-# Testeo de camino feliz,
-
 class testeoFeliz(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username='testuser', password='12345')
+        user = User.objects.create_user(username='testuser', password='12345',last_name='Apellido', first_name='persona',email="test@test.com")
+        self.usuario = Usuario.objects.create(
+            user=user,
+            dni = "12345678",
+            telefono='1234567890',
+        )
+
         self.persona = PersonaDesaparecida(
             nombre='Persona',
             apellido='Apellido',
@@ -24,7 +28,7 @@ class testeoFeliz(TestCase):
             altura=1.75,
             peso=70.0,
             fecha_desaparicion=timezone.now() - timezone.timedelta(days=1),  # Desapareció ayer
-            usuario=self.user
+            usuario=self.usuario
         )
         
         self.persona.save();
@@ -33,24 +37,24 @@ class testeoFeliz(TestCase):
         self.reporte = Reporte.objects.create(
             persona_desaparecida=self.persona,
             descripcion='Descripción del reporte',
-            usuario=self.user,
+            usuario=self.usuario,
         )
         
 
-        self.pista = Pista.objects.create(descripcion='Descripción de la pista', reporte=self.reporte, usuario=self.user)
+        self.pista = Pista.objects.create(descripcion='Descripción de la pista', reporte=self.reporte, usuario=self.usuario)
 
 
         self.ubicacionPista = UbicacionPista.objects.create(
-            ubicacion=Ubicacion.objects.create(latitud=0.0, longitud=0.0, usuario=self.user),
+            ubicacion=Ubicacion.objects.create(latitud=0.0, longitud=0.0, usuario=self.usuario),
             pista=self.pista,
-            usuario=self.user
+            usuario=self.usuario
         )
 
 
         self.ImagenPista = ImagenPista.objects.create(
-            imagen=Imagen.objects.create(link='http://example.com/image.jpg', usuario=self.user),
+            imagen=Imagen.objects.create(imagen="path/to/image.jpg", descripcion = "imagen", usuario=self.usuario),
             pista=self.pista,
-            usuario=self.user
+            usuario=self.usuario
         )
 
     def test_creacion_exitosa(self):
@@ -88,4 +92,4 @@ class testeoFeliz(TestCase):
 
         imagenes = list(pistas[0].imagenes_pista.all())
         self.assertEqual(len(imagenes), 1)
-        self.assertEqual(imagenes[0].imagen.link, 'http://example.com/image.jpg')
+        self.assertEqual(imagenes[0], self.ImagenPista)  # Verifica que la imagen sea la misma que creaste
